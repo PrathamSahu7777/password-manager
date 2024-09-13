@@ -1,28 +1,35 @@
 import React from 'react'
 import { useRef, useState, useEffect } from 'react'
 import { ToastContainer, toast } from 'react-toastify';
+import { useAuth0 } from "@auth0/auth0-react";
 import 'react-toastify/dist/ReactToastify.css';
 import { v4 as uuidv4 } from 'uuid';
 
+
 const Manager = () => {
+    
+    const { user, isAuthenticated } = useAuth0();
     const ref = useRef();
     const passwordRef = useRef()
+   
+
     const [form, setform] = useState({ site: "", username: "", password: "" })
     const [PasswordArray, setPasswordArray] = useState([])
 
     const getPasswords = async() => {
        let req = await fetch("http://localhost:3000/")
        let Passwords = await req.json()
-       console.log(Passwords)
-       setPasswordArray(Passwords)
-       
-        
+    //    console.log(Passwords)
+       setPasswordArray(Passwords.filter(item=>item.email===user.email))
     }
+     const getEmptyPassword = () => {
+       setPasswordArray([]);
+     }
      
-
+    
     useEffect(() => {
-        getPasswords();
-    }, [])
+        isAuthenticated ? getPasswords() : getEmptyPassword()
+    }, [isAuthenticated])
 
     const handleChange = (e) => {
         setform({ ...form, [e.target.name]: e.target.value })
@@ -33,8 +40,8 @@ const Manager = () => {
         
          await fetch("http://localhost:3000/",{method:"DELETE",headers:{"Content-Type":"application/json"},body:JSON.stringify({ id:form.id })})
 
-        setPasswordArray([...PasswordArray, { ...form, id: uuidv4() }])
-         await fetch("http://localhost:3000/",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({ ...form, id: uuidv4() })})
+        setPasswordArray([...PasswordArray, { ...form, id: uuidv4(), email:user.email}])
+         await fetch("http://localhost:3000/",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({ ...form, id: uuidv4(), email:user.email })})
         //localStorage.setItem("passwords", JSON.stringify([...PasswordArray, { ...form, id: uuidv4() }]))
         //console.log([...PasswordArray, form])
         setform({ site: "", username: "", password: "" })
