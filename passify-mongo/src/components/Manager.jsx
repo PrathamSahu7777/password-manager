@@ -6,6 +6,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { v4 as uuidv4 } from 'uuid';
 
 
+
 const Manager = () => {
     
     const { user, isAuthenticated } = useAuth0();
@@ -20,27 +21,28 @@ const Manager = () => {
        let req = await fetch("http://localhost:3000/")
        let Passwords = await req.json()
     //    console.log(Passwords)
-       setPasswordArray(Passwords.filter(item=>item.email===user.email))
+
+       setPasswordArray(Passwords.filter(item=>item.email===user.email));
+       
     }
-     const getEmptyPassword = () => {
-       setPasswordArray([]);
-     }
-     
     
     useEffect(() => {
-        isAuthenticated ? getPasswords() : getEmptyPassword()
+        isAuthenticated && getPasswords() 
+        
     }, [isAuthenticated])
+
+   
 
     const handleChange = (e) => {
         setform({ ...form, [e.target.name]: e.target.value })
     }
-
+     
     const savePassword = async () => {
         if(form.site.length>3 && form.username.length>3 && form.password.length>3){
         
-         await fetch("http://localhost:3000/",{method:"DELETE",headers:{"Content-Type":"application/json"},body:JSON.stringify({ id:form.id })})
 
         setPasswordArray([...PasswordArray, { ...form, id: uuidv4(), email:user.email}])
+
          await fetch("http://localhost:3000/",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({ ...form, id: uuidv4(), email:user.email })})
         //localStorage.setItem("passwords", JSON.stringify([...PasswordArray, { ...form, id: uuidv4() }]))
         //console.log([...PasswordArray, form])
@@ -84,9 +86,10 @@ const Manager = () => {
 
     }
 
-    const editPassword = (id) => {
+    const editPassword = async (id) => {
         setform({...PasswordArray.filter(item => item.id === id)[0],id:id})
         setPasswordArray(PasswordArray.filter(item => item.id != id))
+        await fetch("http://localhost:3000/",{method:"DELETE",headers:{"Content-Type":"application/json"},body:JSON.stringify({ id })})
         
 
     }
@@ -206,7 +209,7 @@ const Manager = () => {
                                     </td>
                                     <td className='border border-white py-1'>
                                         <div className='flex items-center justify-center gap-2'>
-                                            <span> {"*".repeat(item.password.length)}</span>
+                                            <span> {item.password}</span>
                                             <div className='copybtn size-7 pt-1.5 cursor-pointer' onClick={() => copyText(item.password)} >
                                                 <lord-icon style={{ "width": "18px", "height": "18px" }}
                                                     src="https://cdn.lordicon.com/depeqmsz.json"
