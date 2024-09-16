@@ -18,9 +18,9 @@ const Navbar = () => {
                     <a href="#" className='hover:font-bold'>Contact</a>
                 </li>
                 {
-                    isAuthenticated ? <li> <button onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}>
+                    isAuthenticated ? <li className='hover:font-bold'> <button onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}>
                         Log Out
-                    </button></li> : <li><button onClick={() => loginWithRedirect()}>Log In</button></li>
+                    </button></li> : <li className='hover:font-bold'><button onClick={() => loginWithRedirect()}>Log In</button></li>
                 }
 
 
